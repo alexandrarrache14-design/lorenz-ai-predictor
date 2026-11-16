@@ -1,24 +1,33 @@
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, LSTM, SimpleRNN
+from tensorflow.keras.layers import Dense, SimpleRNN, LSTM, Flatten
 
-def crear_modelo_lstm(tamano_ventana=10, num_caracteristicas=3):
-    """Crea un modelo recurrente LSTM."""
+# 1. Red Simple sin memoria (FFN)
+def crear_modelo_ffn(tamano_ventana=10):
     modelo = Sequential([
-        LSTM(32, input_shape=(tamano_ventana, num_caracteristicas)),
+        Flatten(input_shape=(tamano_ventana, 3)),
+        Dense(32, activation='relu'),
         Dense(16, activation='relu'),
-        Dense(num_caracteristicas)
+        Dense(3)
     ])
-    modelo.compile(optimizer='adam', loss='mean_squared_error')
+    modelo.compile(optimizer='adam', loss='mse')
     return modelo
 
-def crear_modelo_ffn(tamano_ventana=10, num_caracteristicas=3):
-    """Crea una red densa Feed-Forward estándar."""
+# 2. Red Recurrente básica (RNN)
+def crear_modelo_rnn(tamano_ventana=10):
     modelo = Sequential([
-        Dense(32, activation='relu', input_shape=(tamano_ventana * num_caracteristicas,)),
-        Dense(16, activation='relu'),
-        Dense(num_caracteristicas)
+        SimpleRNN(32, activation='tanh', input_shape=(tamano_ventana, 3)),
+        Dense(3)
     ])
-    modelo.compile(optimizer='adam', loss='mean_squared_error')
+    modelo.compile(optimizer='adam', loss='mse')
+    return modelo
+
+# 3. Red con compuertas de memoria (LSTM)
+def crear_modelo_lstm(tamano_ventana=10):
+    modelo = Sequential([
+        LSTM(32, activation='tanh', input_shape=(tamano_ventana, 3)),
+        Dense(3)
+    ])
+    modelo.compile(optimizer='adam', loss='mse')
     return modelo
 
 #Define la arquitectura de la IA. Usamos una red LSTM de 
